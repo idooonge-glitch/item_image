@@ -31,6 +31,19 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install Tesseract OCR engine
+        # 재검색 결과를 스크린샷 가격과 자동매칭하려면 OCR이 필요합니다.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tesseract-ocr
+
+      - name: Download high-accuracy Korean/English tessdata
+        run: |
+          mkdir -p pipeline-code/tessdata
+          curl -sL -o pipeline-code/tessdata/kor.traineddata https://github.com/tesseract-ocr/tessdata/raw/main/kor.traineddata
+          curl -sL -o pipeline-code/tessdata/eng.traineddata https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata
+          curl -sL -o pipeline-code/tessdata/osd.traineddata https://github.com/tesseract-ocr/tessdata/raw/main/osd.traineddata
+
       - name: Install Python dependencies
         run: pip install -r pipeline-code/requirements.txt
 
