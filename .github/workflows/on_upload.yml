@@ -61,5 +61,6 @@ jobs:
           COUPANG_ACCESS_KEY: ${{ secrets.COUPANG_ACCESS_KEY }}
           COUPANG_SECRET_KEY: ${{ secrets.COUPANG_SECRET_KEY }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_PAT: ${{ secrets.GH_PAT }}
           PYTHONPATH: pipeline-code
         run: python pipeline-code/ci_process_upload.py ${{ steps.changed.outputs.files }}
