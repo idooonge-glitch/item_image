@@ -1,0 +1,51 @@
+name: Process issue confirmation
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  process:
+    # 봇이 스스로 남긴 댓글(게시완료/재검색 안내)에 다시 반응하면 무한루프에 빠지므로 반드시 제외합니다.
+    if: >
+      github.event.comment.user.login != 'github-actions[bot]' &&
+      github.event.issue.pull_request == null
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout item_image
+        uses: actions/checkout@v4
+
+      - name: Checkout pipeline code (private)
+        uses: actions/checkout@v4
+        with:
+          repository: idooonge-glitch/coupang-threads-images-manual
+          token: ${{ secrets.GH_PAT }}
+          path: pipeline-code
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        run: pip install -r pipeline-code/requirements.txt
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Process comment
+        env:
+          COUPANG_ACCESS_KEY: ${{ secrets.COUPANG_ACCESS_KEY }}
+          COUPANG_SECRET_KEY: ${{ secrets.COUPANG_SECRET_KEY }}
+          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+          THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PYTHONPATH: pipeline-code
+        run: |
+          python pipeline-code/ci_process_confirm.py "${{ github.event.issue.number }}" "${{ github.event.comment.body }}"
