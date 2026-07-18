@@ -31,10 +31,19 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install Tesseract OCR (Korean + English)
+      - name: Install Tesseract OCR engine
         run: |
           sudo apt-get update
-          sudo apt-get install -y tesseract-ocr tesseract-ocr-kor
+          sudo apt-get install -y tesseract-ocr
+
+      - name: Download high-accuracy Korean/English tessdata
+        # apt의 tesseract-ocr-kor는 로컬 개발 PC에서 쓰는 tessdata보다 인식률이 떨어져서
+        # (특히 크롭 하단 기준으로 쓰는 "인증"/"로켓배송" 문구를 놓치는 문제) 같은 원본을 직접 받습니다.
+        run: |
+          mkdir -p pipeline-code/tessdata
+          curl -sL -o pipeline-code/tessdata/kor.traineddata https://github.com/tesseract-ocr/tessdata/raw/main/kor.traineddata
+          curl -sL -o pipeline-code/tessdata/eng.traineddata https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata
+          curl -sL -o pipeline-code/tessdata/osd.traineddata https://github.com/tesseract-ocr/tessdata/raw/main/osd.traineddata
 
       - name: Install Python dependencies
         run: pip install -r pipeline-code/requirements.txt
