@@ -10,9 +10,11 @@ permissions:
 
 jobs:
   process:
-    # 봇이 스스로 남긴 댓글(게시완료/재검색 안내)에 다시 반응하면 무한루프에 빠지므로 반드시 제외합니다.
+    # public 저장소라 로그인한 아무나 이슈에 댓글을 달 수 있어서, 저장소 소유자
+    # 본인의 댓글에만 반응하도록 제한합니다 (안 그러면 남이 댓글로 실제 Threads
+    # 게시를 트리거할 수 있음). 봇 자신의 댓글(게시완료/재검색 안내)도 당연히 제외.
     if: >
-      github.event.comment.user.login != 'github-actions[bot]' &&
+      github.event.comment.user.login == 'idooonge-glitch' &&
       github.event.issue.pull_request == null
     runs-on: ubuntu-latest
     steps:
